@@ -225,6 +225,7 @@ ja:
       input_title: '記事タイトルを入力してください'
       input_content: '内容を入力してください'
       create_article: '記事を作成する'
+      delete_article: '記事を削除する'
       comment_list: 'コメント一覧'
       post_comment: 'コメント投稿'
       initial_assign: 'あなたのアドレスが、DIVEINTOPOSTのチームにアサインされました！'
