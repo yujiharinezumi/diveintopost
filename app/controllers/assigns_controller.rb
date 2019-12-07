@@ -1,5 +1,6 @@
 class AssignsController < ApplicationController
   before_action :authenticate_user!
+  before_action :permit_user, only: [:destroy]
 
   def create
     team = Team.friendly.find(params[:team_id])
@@ -37,13 +38,21 @@ class AssignsController < ApplicationController
       I18n.t('views.messages.cannot_delete_member_4_some_reason')
     end
   end
-  
+
   def email_reliable?(address)
     address.match(/\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i)
   end
-  
+
   def set_next_team(assign, assigned_user)
     another_team = Assign.find_by(user_id: assigned_user.id).team
     change_keep_team(assigned_user, another_team) if assigned_user.keep_team_id == assign.team_id
   end
+
+  def permit_user
+    assign = Assign.find(params[:id])
+    if not current_user.id == assign.team.owner_id || current_user.id == assign.user_id
+      redirect_to team_url(params[:team_id]),notice:"権限がありません"
+    end
+  end
+
 end
