@@ -1,7 +1,7 @@
 class TeamsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_team, only: %i[show edit update destroy]
-  before_action :permit_edit, only: [:update]
+  before_action :permit_edit, only: [:edit,:update]
 
   def index
     @teams = Team.all
@@ -60,7 +60,7 @@ class TeamsController < ApplicationController
 
   def permit_edit
     if not current_user.id == @team.owner_id
-      redirect_to dashboard_url,notice:" チーム編集の権限がありません"
+      redirect_to team_path(@team.id),notice:" チーム編集の権限がありません"
     end
   end
 end
