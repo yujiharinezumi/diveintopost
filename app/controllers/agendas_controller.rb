@@ -1,6 +1,6 @@
 class AgendasController < ApplicationController
-  # before_action :set_agenda, only: %i[show edit update destroy]
-
+   before_action :set_agenda, only: %i[show edit update destroy]
+   before_action :authenticate_user, only:[:destroy]
   def index
     @agendas = Agenda.all
   end
@@ -15,10 +15,22 @@ class AgendasController < ApplicationController
     @agenda.team = Team.friendly.find(params[:team_id])
     current_user.keep_team_id = @agenda.team.id
     if current_user.save && @agenda.save
-      redirect_to dashboard_url, notice: I18n.t('views.messages.create_agenda') 
+      redirect_to dashboard_url, notice: I18n.t('views.messages.create_agenda')
     else
       render :new
     end
+  end
+
+  def destroy
+    assign = @agenda.team.assigns
+  
+    @agenda.destroy
+
+    assign.each do |assign|
+      AgendaMailer.agenda_mail(assign.user.email).deliver
+    end
+    redirect_to dashboard_path
+
   end
 
   private
@@ -30,4 +42,14 @@ class AgendasController < ApplicationController
   def agenda_params
     params.fetch(:agenda, {}).permit %i[title description]
   end
+
+  def authenticate_user
+    user_id = @agenda.user_id
+    owner_id = @agenda.team.owner_id
+
+    if not current_user.id == user_id || current_user.id == owner_id
+        redirect_to dashboard_url,notice:"権限がありません"
+      end
+  end
+
 end
